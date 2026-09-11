@@ -1,0 +1,11 @@
+[[queries]]
+name = "Varina"
+color_identity = "esper"
+# Needs are OR-ed together, i.e. a card is shown if it fits any need.
+needs = [
+  "t:zombie t:creature", # any zombie creature
+  "otag:typal-zombie", # the card is tagged as "typal-zombie"
+  "o:changeling", # the card is a changeling
+  "otag:self-discard-matters", # discard payoff
+]
+format = "edh" # might filter not yet released cards

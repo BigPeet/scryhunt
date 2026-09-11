@@ -34,7 +34,7 @@ jobs:
             }
 
       - name: Upload Build Artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: scryhunt-${{ matrix.os }}
           path: ${{ github.workspace }}/target/release/scryhunt-${{ matrix.os }}.zip
@@ -47,11 +47,11 @@ jobs:
     permissions:
       contents: write
     steps:
-    - name: Dowload artifacts
-      uses: actions/download-artifact@v4
+    - name: Download artifacts
+      uses: actions/download-artifact@v8
       with:
         path: binaries
-        pattern: bf2c-*
+        pattern: scryhunt-*
         merge-multiple: true
     - name: Release
       uses: softprops/action-gh-release@v3

@@ -1,0 +1,61 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build release binary
+        run: cargo build --release
+
+      - name: Package
+        working-directory: ${{ github.workspace }}/target/release
+        shell: pwsh # use powershell to get easy access to 7z AND zip on all OS.
+        run: |
+            if ($env:RUNNER_OS -eq "Windows") {
+              7z a scryhunt-${{ matrix.os }}.zip scryhunt.exe
+            }
+            else {
+              zip scryhunt-${{ matrix.os }}.zip scryhunt
+            }
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: scryhunt-${{ matrix.os }}
+          path: ${{ github.workspace }}/target/release/scryhunt-${{ matrix.os }}.zip
+          retention-days: 7
+
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - name: Dowload artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: binaries
+        pattern: bf2c-*
+        merge-multiple: true
+    - name: Release
+      uses: softprops/action-gh-release@v2
+      with:
+        # TODO: create an automatic changelog file based on commit since last release
+        files: binaries/**
+        token: ${{ secrets.GITHUB_TOKEN }}
